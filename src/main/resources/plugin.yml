@@ -1,0 +1,16 @@
+name: RocketLauncher_Plugin
+author: $pluginAuthor
+version: $pluginVersion
+api-version: 1.16
+main: $pluginMain
+
+commands:
+  launcher:
+    description: You can get this launcher.
+    usage: /launcher <launcherName>
+    permission: plugin.rocket.launcher.op
+
+permissions:
+  plugin.rocket.launcher.op:
+    description: Main permission
+    default: op
