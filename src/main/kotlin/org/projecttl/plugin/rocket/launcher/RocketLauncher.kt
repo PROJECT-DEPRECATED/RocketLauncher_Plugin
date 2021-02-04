@@ -5,17 +5,14 @@ import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import org.projecttl.plugin.rocket.launcher.commands.GetLauncher
-import org.projecttl.plugin.rocket.launcher.info.DefaultLauncher
 import org.projecttl.plugin.rocket.launcher.listeners.DefaultLauncherListener
 import java.io.File
 import java.util.ArrayList
 
 
-
-
 class RocketLauncher: JavaPlugin() {
 
-    var explode = ArrayList<String>()
+    var explode = ArrayList<Int>()
 
     private var getFile: File? = null
     private var configuration: FileConfiguration? = null

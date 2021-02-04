@@ -10,6 +10,7 @@ import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
@@ -53,6 +54,8 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
                                 world.playSound(player.location, Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 100.toFloat(), 0.toFloat())
                             }
 
+                            plugin.explode.add(bullet.entityId)
+
                             plugin.weaponConfig().set("plugin.rocket.launcher.default.${player.name}.ammo", 0)
                             player.sendActionBar("${ChatColor.GOLD}Left Bullet: ${ChatColor.GREEN}$path/1")
                         }
@@ -67,24 +70,46 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
                     when (path) {
                         0 -> {
                             with (player) {
+                                when {
+                                    !reloading -> {
+                                        sendActionBar("${ChatColor.GOLD}Reloading...")
+                                        playSound(this.location, Sound.BLOCK_IRON_DOOR_OPEN, 100.toFloat(), 2.toFloat())
 
-                                sendActionBar("${ChatColor.GOLD}Reloading...")
-                                playSound(this.location, Sound.BLOCK_IRON_DOOR_OPEN, 100.toFloat(), 2.toFloat())
+                                        plugin.weaponConfig()
+                                            .set("plugin.rocket.launcher.default.${player.name}.reload", true)
 
-                                plugin.weaponConfig().set("plugin.rocket.launcher.default.${player.name}.reload", true)
+                                        inventory.itemInOffHand.subtract(1)
+                                        object : BukkitRunnable() {
+                                            override fun run() {
+                                                playSound(
+                                                    player.location,
+                                                    Sound.BLOCK_IRON_DOOR_CLOSE,
+                                                    100.toFloat(),
+                                                    2.toFloat()
+                                                )
 
-                                if (reloading) {
-                                    inventory.itemInOffHand.subtract(1)
+                                                plugin.weaponConfig()
+                                                    .set("plugin.rocket.launcher.default.${player.name}.ammo", 1)
+                                                plugin.weaponConfig()
+                                                    .set("plugin.rocket.launcher.default.${player.name}.reload", false)
+                                            }
+                                        }.runTaskLater(plugin, 2 * 20.toLong())
+                                    }
 
-                                    object : BukkitRunnable() {
-                                        override fun run() {
-                                            playSound(player.location, Sound.BLOCK_IRON_DOOR_CLOSE, 100.toFloat(), 2.toFloat())
+                                    reloading -> {
+                                        sendMessage("Rocket_Launcher> ${ChatColor.GOLD}You're already reloading!")
+                                        playSound(
+                                            this.location,
+                                            Sound.ENTITY_ENDERMAN_TELEPORT,
+                                            100.toFloat(),
+                                            1.0.toFloat()
+                                        )
+                                    }
 
-                                            plugin.weaponConfig().set("plugin.rocket.launcher.default.${player.name}.ammo", 1)
-                                            plugin.weaponConfig().set("plugin.rocket.launcher.default.${player.name}.reload", false)
-                                        }
-                                    }.runTaskLater(plugin, 2 * 20.toLong())
+                                    else -> sendMessage("Rocket_Launcher> ${ChatColor.RED}Error!")
                                 }
+
+                                return@with
                             }
                         }
 
@@ -98,6 +123,21 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
 
                     event.isCancelled = true
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    fun onProjectileHit(event: ProjectileHitEvent) {
+        val entity = event.entity
+        val explodes = plugin.explode
+
+        if (entity is Fireball) {
+            val entityId: Int = event.entity.entityId
+
+            if (explodes.contains(entityId)) {
+                explodes.remove(entityId)
+                entity.world.createExplosion(entity.location, 4.toFloat())
             }
         }
     }
