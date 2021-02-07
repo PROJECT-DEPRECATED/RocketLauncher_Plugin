@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.projecttl.plugin.rocket.launcher.info.DefaultLauncher
+import org.projecttl.plugin.rocket.launcher.info.Nuclear
 
 class GetLauncher: CommandExecutor {
 
@@ -26,6 +27,16 @@ class GetLauncher: CommandExecutor {
                             with(sender) {
                                 inventory.addItem(defaultLauncher)
                                 sendMessage("Rocket_Launcher> ${defaultLauncher.itemMeta.displayName}${ChatColor.GREEN} is successful added your inventory!")
+                            }
+
+                            return true
+                        } else if (args[0].equals("nuclear", true)) {
+                            val nuclearLauncher = ItemStack(Nuclear().launcherItem)
+                            Nuclear().itemMeta(nuclearLauncher)
+
+                            with(sender) {
+                                inventory.addItem(nuclearLauncher)
+                                sendMessage("Rocket_Launcher> ${nuclearLauncher.itemMeta.displayName}${ChatColor.GREEN} is successful added your inventory!")
                             }
 
                             return true

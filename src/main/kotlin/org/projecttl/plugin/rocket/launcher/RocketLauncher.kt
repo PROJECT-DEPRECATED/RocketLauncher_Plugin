@@ -5,14 +5,17 @@ import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import org.projecttl.plugin.rocket.launcher.commands.GetLauncher
+import org.projecttl.plugin.rocket.launcher.commands.arguments.ArgumentForGetLauncher
 import org.projecttl.plugin.rocket.launcher.listeners.DefaultLauncherListener
+import org.projecttl.plugin.rocket.launcher.listeners.NuclearListener
 import java.io.File
 import java.util.ArrayList
 
 
 class RocketLauncher: JavaPlugin() {
 
-    var explode = ArrayList<Int>()
+    var explodes = ArrayList<Int>()
+    var bullets = ArrayList<Int>()
 
     private var getFile: File? = null
     private var configuration: FileConfiguration? = null
@@ -24,7 +27,10 @@ class RocketLauncher: JavaPlugin() {
         logger.info("Plugin enabled.")
 
         getCommand("launcher")?.setExecutor(GetLauncher())
+        getCommand("launcher")?.tabCompleter = ArgumentForGetLauncher()
+
         manager.registerEvents(DefaultLauncherListener(this), this)
+        manager.registerEvents(NuclearListener(this), this)
     }
 
     override fun onDisable() {

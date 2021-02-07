@@ -16,19 +16,20 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
 import org.projecttl.plugin.rocket.launcher.RocketLauncher
 import org.projecttl.plugin.rocket.launcher.info.DefaultLauncher
+import org.projecttl.plugin.rocket.launcher.info.Nuclear
 
-class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
+class NuclearListener(private val plugin: RocketLauncher): Listener {
 
     @EventHandler
-    fun defaultLauncherFire(event: PlayerInteractEvent) {
+    fun onNuclearListener(event: PlayerInteractEvent) {
         val player: Player = event.player
         val action: Action = event.action
 
-        val reloading = plugin.weaponConfig().getBoolean("plugin.rocket.launcher.default.${player.name}.reload")
-        val path = plugin.weaponConfig().getInt("plugin.rocket.launcher.default.${player.name}.ammo")
+        val reloading = plugin.weaponConfig().getBoolean("plugin.rocket.launcher.nuclear.${player.name}.reload")
+        val path = plugin.weaponConfig().getInt("plugin.rocket.launcher.nuclear.${player.name}.ammo")
 
         val ammo = ItemStack(Material.GUNPOWDER, 1)
-        val launcher = ItemStack(DefaultLauncher().launcherItem)
+        val launcher = ItemStack(Nuclear().launcherItem)
         DefaultLauncher().itemMeta(launcher)
 
         if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
@@ -76,7 +77,7 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
                                         playSound(this.location, Sound.BLOCK_IRON_DOOR_OPEN, 100.toFloat(), 2.toFloat())
 
                                         plugin.weaponConfig()
-                                            .set("plugin.rocket.launcher.default.${player.name}.reload", true)
+                                            .set("plugin.rocket.launcher.nuclear.${player.name}.reload", true)
 
                                         inventory.itemInOffHand.subtract(1)
                                         object: BukkitRunnable() {
@@ -89,9 +90,9 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
                                                 )
 
                                                 plugin.weaponConfig()
-                                                    .set("plugin.rocket.launcher.default.${player.name}.ammo", 1)
+                                                    .set("plugin.rocket.launcher.nuclear.${player.name}.ammo", 1)
                                                 plugin.weaponConfig()
-                                                    .set("plugin.rocket.launcher.default.${player.name}.reload", false)
+                                                    .set("plugin.rocket.launcher.nuclear.${player.name}.reload", false)
                                             }
                                         }.runTaskLater(plugin, 2 * 20.toLong())
                                     }
@@ -137,7 +138,7 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
 
             if (explodes.contains(entityId)) {
                 explodes.remove(entityId)
-                entity.world.createExplosion(entity.location, 4.toFloat())
+                entity.world.createExplosion(entity.location, 400.toFloat())
             }
         }
     }
