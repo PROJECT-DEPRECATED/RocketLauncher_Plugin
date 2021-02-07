@@ -1,9 +1,9 @@
 package org.projecttl.plugin.rocket.launcher.listeners
 
 import org.bukkit.*
-import org.bukkit.entity.Fireball
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
+import org.bukkit.entity.Snowball
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -13,19 +13,20 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitRunnable
 import org.projecttl.plugin.rocket.launcher.RocketLauncher
 import org.projecttl.plugin.rocket.launcher.info.DefaultLauncher
+import org.projecttl.plugin.rocket.launcher.info.Armageddon
 
-class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
+class ArmageddonListener(private val plugin: RocketLauncher): Listener {
 
     @EventHandler
-    fun defaultLauncherFire(event: PlayerInteractEvent) {
+    fun onArmageddonListener(event: PlayerInteractEvent) {
         val player: Player = event.player
         val action: Action = event.action
 
-        val reloading = plugin.weaponConfig().getBoolean("plugin.rocket.launcher.default.${player.name}.reload")
-        val path = plugin.weaponConfig().getInt("plugin.rocket.launcher.default.${player.name}.ammo")
+        val reloading = plugin.weaponConfig().getBoolean("plugin.rocket.launcher.armageddon.${player.name}.reload")
+        val path = plugin.weaponConfig().getInt("plugin.rocket.launcher.armageddon.${player.name}.ammo")
 
         val ammo = ItemStack(Material.GUNPOWDER, 1)
-        val launcher = ItemStack(DefaultLauncher().launcherItem)
+        val launcher = ItemStack(Armageddon().launcherItem)
         DefaultLauncher().itemMeta(launcher)
         if (player.gameMode == GameMode.SPECTATOR) {
             return
@@ -33,17 +34,17 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
             if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
                 if (player.inventory.itemInMainHand.type == launcher.type) {
                     if (player.inventory.itemInMainHand.itemMeta.displayName == launcher.itemMeta.displayName) {
-                        when (path) {
-                            0 -> {
+                        when {
+                            path == 0 -> {
                                 with(player) {
                                     playSound(this.location, Sound.BLOCK_IRON_DOOR_CLOSE, 100.toFloat(), 2.toFloat())
-                                    sendActionBar("${ChatColor.GOLD}Left Bullet: ${ChatColor.RED}$path${ChatColor.GREEN}/1")
+                                    sendActionBar("${ChatColor.GOLD}Left Bullet: ${ChatColor.RED}$path${ChatColor.GREEN}/4")
                                 }
                             }
 
-                            1 -> {
-                                val bullet: Projectile = player.launchProjectile(Fireball::class.java).let { bullet ->
-                                    bullet.velocity = player.location.direction.multiply(1.5)
+                            path > 0 -> {
+                                val bullet: Projectile = player.launchProjectile(Snowball::class.java).let { bullet ->
+                                    bullet.velocity = player.location.direction.multiply(3)
 
                                     bullet
                                 }
@@ -60,8 +61,8 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
 
                                 plugin.explodes.add(bullet.entityId)
 
-                                plugin.weaponConfig().set("plugin.rocket.launcher.default.${player.name}.ammo", 0)
-                                player.sendActionBar("${ChatColor.GOLD}Left Bullet: ${ChatColor.GREEN}$path/1")
+                                plugin.weaponConfig().set("plugin.rocket.launcher.armageddon.${player.name}.ammo", path - 1)
+                                player.sendActionBar("${ChatColor.GOLD}Left Bullet: ${ChatColor.GREEN}$path/4")
                             }
                         }
 
@@ -71,8 +72,8 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
             } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
                 if (player.inventory.itemInMainHand.type == launcher.type && player.inventory.itemInOffHand.type == ammo.type) {
                     if (player.inventory.itemInMainHand.itemMeta.displayName == launcher.itemMeta.displayName) {
-                        when (path) {
-                            0 -> {
+                        when {
+                            path == 0 -> {
                                 with(player) {
                                     when {
                                         !reloading -> {
@@ -85,7 +86,7 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
                                             )
 
                                             plugin.weaponConfig()
-                                                .set("plugin.rocket.launcher.default.${player.name}.reload", true)
+                                                .set("plugin.rocket.launcher.armageddon.${player.name}.reload", true)
 
                                             inventory.itemInOffHand.subtract(1)
                                             object : BukkitRunnable() {
@@ -98,10 +99,10 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
                                                     )
 
                                                     plugin.weaponConfig()
-                                                        .set("plugin.rocket.launcher.default.${player.name}.ammo", 1)
+                                                        .set("plugin.rocket.launcher.armageddon.${player.name}.ammo", 4)
                                                     plugin.weaponConfig()
                                                         .set(
-                                                            "plugin.rocket.launcher.default.${player.name}.reload",
+                                                            "plugin.rocket.launcher.armageddon.${player.name}.reload",
                                                             false
                                                         )
                                                 }
@@ -125,9 +126,9 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
                                 }
                             }
 
-                            1 -> {
+                            path > 0 -> {
                                 with(player) {
-                                    sendActionBar("${ChatColor.GOLD}Left Bullet: ${ChatColor.GREEN}$path/1")
+                                    sendActionBar("${ChatColor.GOLD}Left Bullet: ${ChatColor.GREEN}$path/4")
                                     playSound(player.location, Sound.BLOCK_IRON_DOOR_CLOSE, 100.toFloat(), 2.toFloat())
                                 }
                             }
@@ -145,12 +146,12 @@ class DefaultLauncherListener(private val plugin: RocketLauncher): Listener {
         val entity = event.entity
         val explodes = plugin.explodes
 
-        if (entity is Fireball) {
+        if (entity is Snowball) {
             val entityId: Int = event.entity.entityId
 
             if (explodes.contains(entityId)) {
                 explodes.remove(entityId)
-                entity.world.createExplosion(entity.location, 4.toFloat())
+                entity.world.createExplosion(entity.location, 200.toFloat())
             }
         }
     }

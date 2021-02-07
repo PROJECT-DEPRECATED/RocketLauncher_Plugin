@@ -13,7 +13,7 @@ class ArgumentForGetLauncher: TabCompleter {
                 1 -> {
                     val firstArgument: ArrayList<String> = ArrayList()
                     firstArgument.add("default")
-                    firstArgument.add("nuclear")
+                    firstArgument.add("armageddon")
 
                     return firstArgument
                 }

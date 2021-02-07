@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.projecttl.plugin.rocket.launcher.info.DefaultLauncher
-import org.projecttl.plugin.rocket.launcher.info.Nuclear
+import org.projecttl.plugin.rocket.launcher.info.Armageddon
 
 class GetLauncher: CommandExecutor {
 
@@ -30,9 +30,9 @@ class GetLauncher: CommandExecutor {
                             }
 
                             return true
-                        } else if (args[0].equals("nuclear", true)) {
-                            val nuclearLauncher = ItemStack(Nuclear().launcherItem)
-                            Nuclear().itemMeta(nuclearLauncher)
+                        } else if (args[0].equals("armageddon", true)) {
+                            val nuclearLauncher = ItemStack(Armageddon().launcherItem)
+                            Armageddon().itemMeta(nuclearLauncher)
 
                             with(sender) {
                                 inventory.addItem(nuclearLauncher)

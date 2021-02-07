@@ -7,7 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.projecttl.plugin.rocket.launcher.commands.GetLauncher
 import org.projecttl.plugin.rocket.launcher.commands.arguments.ArgumentForGetLauncher
 import org.projecttl.plugin.rocket.launcher.listeners.DefaultLauncherListener
-import org.projecttl.plugin.rocket.launcher.listeners.NuclearListener
+import org.projecttl.plugin.rocket.launcher.listeners.ArmageddonListener
 import java.io.File
 import java.util.ArrayList
 
@@ -30,7 +30,7 @@ class RocketLauncher: JavaPlugin() {
         getCommand("launcher")?.tabCompleter = ArgumentForGetLauncher()
 
         manager.registerEvents(DefaultLauncherListener(this), this)
-        manager.registerEvents(NuclearListener(this), this)
+        manager.registerEvents(ArmageddonListener(this), this)
     }
 
     override fun onDisable() {

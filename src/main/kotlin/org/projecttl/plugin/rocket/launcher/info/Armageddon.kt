@@ -4,7 +4,7 @@ import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
-class Nuclear {
+class Armageddon {
     private var launcherName = "${ChatColor.AQUA}Rocket Launcher"
     private var launcherLore = listOf("${ChatColor.GOLD}This is default launcher.")
 
